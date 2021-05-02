@@ -10,6 +10,17 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  # Persistence
+  sembast: ^3.0.2
+  shared_preferences: ^2.0.5
+  # Design Pattern
+  bloc: ^7.0.0
+  flutter_bloc: ^7.0.0
+  flow_builder: ^0.0.2
+  # Misc
+  uuid: ^3.0.4
+  excel: ^2.0.0-null-safety-3
+  font_awesome_flutter: ^9.0.0
 
 dev_dependencies:
   flutter_test:
