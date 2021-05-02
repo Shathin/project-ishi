@@ -1,0 +1,57 @@
+name: Build and Release
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build-release-windows:
+    runs-on: windows-latest
+
+    env:
+      WINDOWS_RELEASE_DIRECTORY: build\windows\runner\Release
+      PACKAGE_ARCHIVE_NAME: windows-release.zip
+      PACKAGE_RELEASE_NAME: project-ishi.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup environment for Flutter (Beta)
+        uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      
+      - name: Enable Windows support for Flutter
+        run: flutter config --enable-windows-desktop
+      
+      - name: Get all packages
+        run: flutter pub get
+      
+      - name: Build release application for Windows
+        run: flutter build windows
+
+      - name: Create archive
+        run: Compress-Archive -Path $env:WINDOWS_RELEASE_DIRECTORY/* -DestinationPath ./$env:PACKAGE_ARCHIVE_NAME
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name:  ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Update release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.PACKAGE_ARCHIVE_NAME }}
+          asset_name: ${{ env.PACKAGE_RELEASE_NAME }}
+          asset_content_type: application/zip
