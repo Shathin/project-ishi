@@ -59,6 +59,12 @@ Following is the list of packages that is used in the application.
   - **Package**: `font_awesome_flutter: ^9.0.0`
   - **Null Safety**: ✅
   - **URL**: https://pub.dev/packages/font_awesome_flutter
+### Crypto
+  - **Description**: Implementations of SHA, MD5, and HMAC cryptographic functions
+  - **Support**: Android, iOS, MacOS, Web, Linux, **Windows**
+  - **Package**: `crypto: ^3.0.1`
+  - **Null Safety**: ✅
+  - **URL**: https://pub.dev/packages/crypto
 ### UUID
   - **Description**: RFC4122 (v1, v4, v5) UUID Generator and Parser for all Dart platforms (Web, VM, Flutter)
   - **Support**: Android, iOS, MacOS, Web, Linux, **Windows**
