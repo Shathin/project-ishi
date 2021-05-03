@@ -8,7 +8,7 @@ import 'package:project_ishi/theme/themes/custom_themes.dart';
 part 'theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
-  ThemeCubit() : super(LightThemeState());
+  ThemeCubit() : super(DarkThemeState());
 
   /// Toggles the theme of the application
   ///
