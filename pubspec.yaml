@@ -21,6 +21,9 @@ dependencies:
   uuid: ^3.0.4
   excel: ^2.0.0-null-safety-3
   font_awesome_flutter: ^9.0.0
+  # Custom Packages
+  auth_repo:
+    path: packages/auth_repo
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +32,7 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/labcoat/
+    - assets/8_bit_heart.png
