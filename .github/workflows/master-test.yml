@@ -1,0 +1,22 @@
+name: Test
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup environment for Flutter (Beta)
+        uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      
+      - name: Get all packages
+        run: flutter pub get
+      
+      - name: Unit Test Package `auth_repo`
+        run: flutter test ./packages/auth_repo/test/
