@@ -1,0 +1,17 @@
+name: database_repo
+description: A repository that performs CRUD operations using Sembast DB. Provides sub-repositories for interacting with the patients, records and template collections.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=2.12.0-0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  uuid: ^3.0.4
+  sembast: ^3.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
