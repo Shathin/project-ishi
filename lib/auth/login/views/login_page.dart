@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project_ishi/auth/login/cubit/login_cubit.dart';
 
 // ! File imports
-import 'package:project_ishi/theme/theme.dart';
 import 'package:project_ishi/utils/app_title_large.dart';
+import 'package:project_ishi/utils/theme/theme.dart';
 
 import 'login_form.dart';
 
@@ -17,16 +17,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<ThemeCubit>().switchTheme(),
-        child: context.read<ThemeCubit>().state is LightThemeState
-            ? Icon(
-                Icons.brightness_4,
-              )
-            : Icon(
-                Icons.brightness_5,
-              ),
-      ),
+      floatingActionButton: ThemeSwitcher(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: BlocProvider<LoginCubit>(

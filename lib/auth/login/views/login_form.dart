@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // ! Third party libraries
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:project_ishi/app/app.dart';
+import 'package:project_ishi/app/views/app.dart';
 import 'package:project_ishi/auth/login/cubit/login_cubit.dart';
 
 // ! File imports
@@ -94,7 +94,7 @@ class _VerifyPasswordButton extends StatelessWidget {
             ? null
             : () {
                 if (context.read<LoginCubit>().verifyPassword()) {
-                  Navigator.of(context).pushReplacement(App.route());
+                  Navigator.of(context).pushReplacement(AppPage.route());
                 } else {
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()

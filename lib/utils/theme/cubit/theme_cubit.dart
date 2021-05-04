@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ishi/utils/theme/themes/custom_themes.dart';
 
 // ! File imports
-import 'package:project_ishi/theme/themes/custom_themes.dart';
 
 // ! Parts
 part 'theme_state.dart';

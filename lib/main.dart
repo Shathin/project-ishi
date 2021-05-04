@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:auth_repo/auth_repo.dart';
 
 // ! File Imports
-import 'package:project_ishi/theme/theme.dart';
+import 'package:project_ishi/utils/theme/theme.dart';
 import 'package:project_ishi/auth/sign_up/sign_up.dart';
 import 'package:project_ishi/auth/login/login.dart';
 
@@ -16,7 +16,7 @@ Future<void> main() async {
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
   // Uncomment to clear shared preferences when required
-  // await sharedPreferences.clear();
+  await sharedPreferences.clear();
 
   AuthRepo authRepo = AuthRepo(sharedPreferences: sharedPreferences);
 

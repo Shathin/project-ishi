@@ -7,8 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // ! File imports
 import 'package:project_ishi/auth/sign_up/cubit/sign_up_cubit.dart';
 import 'package:project_ishi/auth/sign_up/views/sign_up_form.dart';
-import 'package:project_ishi/theme/theme.dart';
 import 'package:project_ishi/utils/app_title_large.dart';
+import 'package:project_ishi/utils/theme/theme.dart';
 
 class SignUpPage extends StatelessWidget {
   static Route route() => MaterialPageRoute<void>(builder: (_) => SignUpPage());
@@ -16,16 +16,7 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<ThemeCubit>().switchTheme(),
-        child: context.read<ThemeCubit>().state is LightThemeState
-            ? Icon(
-                Icons.brightness_4,
-              )
-            : Icon(
-                Icons.brightness_5,
-              ),
-      ),
+      floatingActionButton: ThemeSwitcher(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: BlocProvider<SignUpCubit>(

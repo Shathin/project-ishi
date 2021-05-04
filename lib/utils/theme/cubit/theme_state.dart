@@ -14,11 +14,6 @@ class LightThemeState extends ThemeState {
           brightness: Brightness.light,
           primaryColor: Colors.blue,
           buttonColor: Colors.blue,
-          iconTheme: IconThemeData(
-            color: Colors.red,
-            size: 24.0,
-            opacity: 1.0,
-          ),
           textTheme: TextTheme(
             headline1: CustomTextTheme.headline1.copyWith(color: Colors.black),
             headline2: CustomTextTheme.headline2.copyWith(color: Colors.black),
