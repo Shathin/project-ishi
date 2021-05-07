@@ -9,13 +9,13 @@ import 'package:auth_repo/auth_repo.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   group('Authentication Repository', () {
-    late SharedPreferences sharedPreferences;
-    late AuthRepo authRepo;
+    late final SharedPreferences sharedPreferences;
+    late final AuthRepo authRepo;
     final String password1 = 'sample-password';
     final String password2 = 'invalid-password';
 
     /// Initializes the variables used throughout testing
-    setUp(() async {
+    setUpAll(() async {
       sharedPreferences = await SharedPreferences.getInstance();
       authRepo = AuthRepo(sharedPreferences: sharedPreferences);
     });
