@@ -41,7 +41,7 @@ A base _template_ will be be provided to each new user upon which they can build
       "fieldName": {
         "name": "Field Name (as the user inputs)",
         "type": "Type of the field", // -> One of the types in `fieldTypes`
-        "values": [], // -> This field is relevant only when the `type` of this field is an `Choice`
+        "choices": [], // -> This field is relevant only when the `type` of this field is an `Choice`
         "arrayType": "String/Number/Timestamp", // -> This field is relevant when the `type` of this field is an `Array`
         "mandatory": "Boolean", // -> Few fields are marked mandatory by default by the application and hence can't be deleted by the user.
         "sequence": "Number" // -> Determines in which order does this field render on the UI
@@ -50,55 +50,61 @@ A base _template_ will be be provided to each new user upon which they can build
   },
   // The default template -> Will be persisted in case the user wants to reset all data
   "baseTemplate": {
-    "patientDetails": {
+    {
       "patientType": {
         "name": "Patient Type",
+        "category": "Patient Details",
         "type": "Choice",
-        "values": ["In-patient", "Out-patient"],
+        "choices": ["In-patient", "Out-patient"],
         "mandatory": false,
         "sequence": 1
-      }
-    },
-    "procedureDetails": {
+      },
       "procedureName": {
         "name": "Procedure Name",
+        "category": "Procedure Details",
         "type": "String",
         "mandatory": true,
         "sequence": 1
       },
       "procedureCode": {
         "name": "Procedure Code",
+        "category": "Procedure Details",
         "type": "String",
         "mandatory": true,
         "sequence": 2
       },
       "dateOfProcedure": {
         "name": "Date of Procedure",
+        "category": "Procedure Details",
         "type": "Timestamp",
         "mandatory": true,
         "sequence": 3
       },
       "billedAmount": {
         "name": "Billed Amount",
+        "category": "Procedure Details",
         "type": "Money",
         "mandatory": true,
         "sequence": 4
       },
       "paidAmount": {
         "name": "Paid Amount",
+        "category": "Procedure Details",
         "type": "Money",
         "mandatory": true,
         "sequence": 5
       },
-      "feeWaived": {
+      "feeWaived?": {
         "name": "Fee Waived?",
+        "category": "Procedure Details",
         "type": "Choice",
-        "values": ["Yes", "No", "Partially"],
+        "choices": ["Yes", "No", "Partially"],
         "mandatory": true,
         "sequence": 6
       },
       "wardVisit": {
         "name": "Ward Visit",
+        "category": "Procedure Details",
         "type": "Array",
         "arrayType": "Timestamp",
         "mandatory": false,
@@ -106,13 +112,15 @@ A base _template_ will be be provided to each new user upon which they can build
       },
       "report": {
         "name": "Report",
+        "category": "Procedure Details",
         "type": "Media",
         "mandatory": false,
         "sequence": 8
       },
       "consultationNote": {
         "name": "Consultation Note",
-        "type": "LargeText",
+        "category": "Procedure Details",
+        "type": "Large Text",
         "mandatory": false,
         "sequence": 9
       }

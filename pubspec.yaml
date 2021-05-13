@@ -23,6 +23,8 @@ dependencies:
   # Custom Packages
   auth_repo:
     path: packages/auth_repo
+  database_repo:
+    path: packages/database_repo
 
 dev_dependencies:
   flutter_test:
