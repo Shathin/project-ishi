@@ -11,7 +11,7 @@ enum TemplateFieldArrayType {
 }
 
 /// An extension that provides additional functionality to the [TemplateFieldType] enum
-extension TemplateFieldArrayTypeToStringInterconversion
+extension TemplateFieldArrayTypeStringInterconversion
     on TemplateFieldArrayType {
   /// Method that converts the string version of the enum to enum type
   ///

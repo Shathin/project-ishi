@@ -6,7 +6,7 @@ import './models/models.dart';
 // ! Third party libraris
 import 'package:sembast/sembast.dart';
 
-// /// Repository that provides operations associated with the template collection
+/// Repository that provides operations associated with the template collection
 class TemplateRepo {
   final StoreRef _templateStore;
   final Database _database;
@@ -18,7 +18,7 @@ class TemplateRepo {
 
   // * CREATE ===========================================================================
 
-  /// Writes to the database a new field into the user's template
+  /// Writes a new template field to the database
   Future<void> createNewField({
     required TemplateField newField,
   }) async {

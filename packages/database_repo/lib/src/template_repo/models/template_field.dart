@@ -80,7 +80,7 @@ class TemplateField {
           : null,
       // Set [templateFieldArrayType] only if the field type is [TemplateFieldType.array]
       arrayType: templateFieldType == TemplateFieldType.Array
-          ? TemplateFieldArrayTypeToStringInterconversion.stringToEnum(
+          ? TemplateFieldArrayTypeStringInterconversion.stringToEnum(
               templateFieldMap["arrayType"],
             )
           : null,
@@ -89,6 +89,7 @@ class TemplateField {
     );
   }
 
+  /// Method that returns a copy of the current [TemplateField] object with a specified fields replaced by the arguments passed to this method
   TemplateField copyWith({
     String? fieldName,
     TemplateFieldCategory? category,
@@ -96,31 +97,30 @@ class TemplateField {
     TemplateFieldArrayType? arrayType,
     List<String>? choices,
     int? sequence,
-  }) {
-    return TemplateField(
-      fieldName: fieldName ?? this.fieldName,
-      category: category ?? this.category,
-      type: type ?? this.type,
-      // ! The [arrayType] is copied to the new [TemplateField] object only if the type of the field is [TemplateFieldType.Array]
-      arrayType: type == null
-          ? this.type == TemplateFieldType.Array
-              ? (arrayType ?? this.arrayType)
-              : null
-          : type == TemplateFieldType.Array
-              ? (arrayType ?? this.arrayType)
-              : null,
-      // ! The [choices] list is copied to the new [TemplateField] object only if the type of the field is [TemplateFieldType.Choice]
-      choices: type == null
-          ? this.type == TemplateFieldType.Choice
-              ? (choices ?? this.choices)
-              : null
-          : type == TemplateFieldType.Choice
-              ? (choices ?? this.choices)
-              : null,
-      sequence: sequence ?? this.sequence,
-      mandatory: this.mandatory,
-    );
-  }
+  }) =>
+      TemplateField(
+        fieldName: fieldName ?? this.fieldName,
+        category: category ?? this.category,
+        type: type ?? this.type,
+        // ! The [arrayType] is copied to the new [TemplateField] object only if the type of the field is [TemplateFieldType.Array]
+        arrayType: type == null
+            ? this.type == TemplateFieldType.Array
+                ? (arrayType ?? this.arrayType)
+                : null
+            : type == TemplateFieldType.Array
+                ? (arrayType ?? this.arrayType)
+                : null,
+        // ! The [choices] list is copied to the new [TemplateField] object only if the type of the field is [TemplateFieldType.Choice]
+        choices: type == null
+            ? this.type == TemplateFieldType.Choice
+                ? (choices ?? this.choices)
+                : null
+            : type == TemplateFieldType.Choice
+                ? (choices ?? this.choices)
+                : null,
+        sequence: sequence ?? this.sequence,
+        mandatory: this.mandatory,
+      );
 
   /// Method that generates the [fieldKey] based on the [fieldName].
   ///
