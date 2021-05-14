@@ -140,17 +140,11 @@ A base _template_ will be be provided to each new user upon which they can build
     "documentId": {
       "pid": "Reference to `patients` document", // -> Determines to which patient does this record belong to
       // Record data according to the user's customized template is stored below
-      "detailsType": {
-        // -> Either `patientDetails` or `procedureDetails`
-        "fieldName1": "value", // -> This is the format for field types `String`, `LargeText`, `Number`, `Money`, `Choice`, `Timestamp`
-        // -> This is the format for the field type `Media`
-        "fieldName2": {
-          "mediaName": "Name of the media",
-          "mediaUrl": "URL to the media"
-        },
-        // -> This is the format for the field type `Array`
-        "fieldName3": ["value1", "value2"]
-      }
+      "fieldName1": "value", // -> This is the format for field types `String`, `LargeText`, `Number`, `Money`, `Choice`, `Timestamp`
+      // -> This is the format for the field type `Media`
+      "fieldName2": "URL to the media",
+      // -> This is the format for the field type `Array`
+      "fieldName3": ["value1", "value2"]
     }
   }
 }
