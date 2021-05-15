@@ -9,12 +9,19 @@ import 'package:sembast/sembast.dart';
 /// Repository that provides operations associated with the template collection
 class TemplateRepo {
   final StoreRef _templateStore;
-  final Database _database;
+  final Database _templateDatabase;
 
   TemplateRepo({
-    required Database database,
-  })  : this._database = database,
-        this._templateStore = stringMapStoreFactory.store('template');
+    required Database templateDatabase,
+    required StoreRef templateStore,
+  })  : this._templateDatabase = templateDatabase,
+        this._templateStore = templateStore;
+
+  /// Getter to obtain the template's [StoreRef] object
+  StoreRef get templateStore => this._templateStore;
+
+  /// Getter to obtain the template's [Database] object
+  Database get templateDatabase => this._templateDatabase;
 
   // * CREATE ===========================================================================
 
@@ -25,7 +32,7 @@ class TemplateRepo {
     await this
         ._templateStore
         .record(newField.fieldKey)
-        .add(this._database, newField.objectToMap());
+        .add(this._templateDatabase, newField.objectToMap());
   }
 
   // * READ =============================================================================
@@ -34,7 +41,7 @@ class TemplateRepo {
   Future<Template> readTemplate() async {
     // * Fetch tempate from the database using the [_database] object
     List<RecordSnapshot<dynamic, dynamic>> recordSnapshotList =
-        await this._templateStore.find(this._database);
+        await this._templateStore.find(this._templateDatabase);
 
     Map<String, Map<String, dynamic>> templateMap = {};
 
@@ -53,7 +60,7 @@ class TemplateRepo {
   }) async {
     final String fieldKey = TemplateField.generateFieldKey(fieldName);
     final field =
-        await this._templateStore.record(fieldKey).get(this._database);
+        await this._templateStore.record(fieldKey).get(this._templateDatabase);
     if (field == null) return null;
     return TemplateField.mapToObject(
         templateFieldMap: field as Map<String, dynamic>);
@@ -85,14 +92,14 @@ class TemplateRepo {
         await this
             ._templateStore
             .record(oldField.fieldKey)
-            .delete(this._database);
+            .delete(this._templateDatabase);
       }
     }
 
     if (oldField.category != updatedField.category) {
       // * Place the updated field at the end of the category
       int lastSequence = (await this._templateStore.find(
-                this._database,
+                this._templateDatabase,
                 finder: Finder(
                   sortOrders: <SortOrder>[SortOrder('sequence')],
                   filter: Filter.equals(
@@ -105,7 +112,7 @@ class TemplateRepo {
           .value['sequence'];
 
       await this._templateStore.record(updatedField.fieldKey).put(
-            this._database,
+            this._templateDatabase,
             updatedField.copyWith(sequence: lastSequence + 1).objectToMap(),
           );
       return true;
@@ -113,7 +120,7 @@ class TemplateRepo {
 
     // * Update the record in the database
     await this._templateStore.record(updatedField.fieldKey).put(
-          this._database,
+          this._templateDatabase,
           updatedField.objectToMap(),
         );
 
@@ -143,7 +150,7 @@ class TemplateRepo {
             Filter.lessThanOrEquals('sequence', updatedField.sequence);
       }
       List<RecordSnapshot?> records = await this._templateStore.find(
-            this._database,
+            this._templateDatabase,
             finder: Finder(
               sortOrders: <SortOrder>[
                 SortOrder('sequence'),
@@ -221,7 +228,7 @@ class TemplateRepo {
       await this
           ._templateStore
           .record(deletedField.fieldKey)
-          .delete(this._database);
+          .delete(this._templateDatabase);
   }
 
   // * INIT ===========================================================================
@@ -231,7 +238,7 @@ class TemplateRepo {
   /// Calling this function if a user's template already exists would re-write the template.
   Future<void> initializeTemplate() async {
     // * Clear the template store if it already has any data
-    await this._templateStore.delete(this._database);
+    await this._templateStore.delete(this._templateDatabase);
 
     // * The [baseTemplate] map is converted to a [Template] object in order to sanitize the [fieldKey] of each field
     final baseTemplateObject = Template.mapToObject(templateMap: baseTemplate);
@@ -241,7 +248,7 @@ class TemplateRepo {
       await this
           ._templateStore
           .record(fieldKey)
-          .add(this._database, baseTemplateMap[fieldKey]);
+          .add(this._templateDatabase, baseTemplateMap[fieldKey]);
     }
   }
 }

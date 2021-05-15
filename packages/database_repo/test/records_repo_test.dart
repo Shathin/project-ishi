@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:database_repo/src/template_repo/models/template_field_type.dart';
+import 'package:database_repo/utils.dart';
 import "package:flutter_test/flutter_test.dart";
 import "package:collection/collection.dart";
 
@@ -11,7 +12,6 @@ import "package:sembast/sembast_io.dart" as sembastIO;
 // ! File imports
 import "package:database_repo/records_repo.dart";
 import "package:database_repo/patients_repo.dart";
-import 'package:database_repo/mock_data_repo.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
@@ -30,7 +30,7 @@ void main() {
       late sembast.StoreRef recordsStore;
       late sembast.StoreRef patientsStore;
 
-      late Map<String, Map<String, dynamic>> mockData;
+      late Map<String, Map<String, dynamic>> mockDataMap;
       late Map<String, dynamic> mockPatientsData;
       late Map<String, dynamic> mockRecordsData;
 
@@ -48,18 +48,20 @@ void main() {
         patientsStore = sembast.stringMapStoreFactory.store("patients");
 
         patientsRepo = PatientsRepo(
-          database: patientsDatabase,
+          patientsDatabase: patientsDatabase,
+          patientsStore: patientsStore,
         );
 
         recordsRepo = RecordsRepo(
           recordsDatabase: recordsDatabase,
+          recordsStore: recordsStore,
           patientsRepo: patientsRepo,
         );
 
-        mockData = await processMockData();
+        mockDataMap = await MockData.processMockData();
 
-        mockPatientsData = mockData['patients'] ?? {};
-        mockRecordsData = mockData['records'] ?? {};
+        mockPatientsData = mockDataMap['patients'] ?? {};
+        mockRecordsData = mockDataMap['records'] ?? {};
       });
 
       // ! Closing the database connection and deleting the database file after each test
@@ -72,24 +74,25 @@ void main() {
 
       /// Initialize mock data in the database
       Future<void> initializeMockData() async {
-        if (mockPatientsData.keys.length == 0 ||
-            mockRecordsData.keys.length == 0) {
+        bool recordsInitStatus = await MockData.initializeMockRecordsData(
+          recordsDatabase: recordsDatabase,
+          recordsStore: recordsStore,
+        );
+
+        if (!recordsInitStatus)
           throw TestFailure(
-            'Failure while initalizing mock data in the database! Either the patients mock data or the records mock data seems to empty',
+            'Failure while initalizing mock records data in the database!',
           );
-        } else {
-          // * Write mock data to the database
-          for (String key in mockPatientsData.keys)
-            await patientsStore.record(key).add(
-                  patientsDatabase,
-                  mockPatientsData[key],
-                );
-          for (String key in mockRecordsData.keys)
-            await recordsStore.record(key).add(
-                  recordsDatabase,
-                  mockRecordsData[key],
-                );
-        }
+
+        bool patientsInitStatus = await MockData.initializeMockPatientsData(
+          patientsDatabase: patientsDatabase,
+          patientsStore: patientsStore,
+        );
+
+        if (!patientsInitStatus)
+          throw TestFailure(
+            'Failure while initalizing mock patients data in the database!',
+          );
       }
 
       /// A method that fetches all the record objects from the database and converts it into a map of the form {rid: record}
@@ -1114,95 +1117,140 @@ void main() {
       group(
         'Test DELETE 🗑',
         () {
-          test(
-            'Test [deleteRecord()] method when there is only one record in the database',
-            () async {
-              Patient patient = Patient.create(
-                name: 'Monkey D Luffy',
-                age: 19,
-                gender: Gender.Male,
-              );
+          group(
+            'Test [deleteRecord()] method',
+            () {
+              test(
+                'When there is only one record in the database',
+                () async {
+                  Patient patient = Patient.create(
+                    name: 'Monkey D Luffy',
+                    age: 19,
+                    gender: Gender.Male,
+                  );
 
-              // * Write patient object to the database
-              await patientsRepo.createPatient(patient: patient);
+                  // * Write patient object to the database
+                  await patientsRepo.createPatient(patient: patient);
 
-              Record record = Record.create(
-                pid: patient.pid,
-                procedureCode: 'WANO',
-                procedureName: 'Defeat Big Mom and Kaido',
-                billedAmount: 1234567,
-                paidAmount: 1234567,
-                feeWaived: "No",
-                dateOfProcedure: DateTime.now(),
-                customFields: {
-                  "patientType": "Out-Patient",
-                  "wardVisit": [],
-                  "report": "https://dummyimage.com/287x406.png/dddddd/000000",
-                  "consultationNote": "Luffy ryuo haki go brr",
+                  Record record = Record.create(
+                    pid: patient.pid,
+                    procedureCode: 'WANO',
+                    procedureName: 'Defeat Big Mom and Kaido',
+                    billedAmount: 1234567,
+                    paidAmount: 1234567,
+                    feeWaived: "No",
+                    dateOfProcedure: DateTime.now(),
+                    customFields: {
+                      "patientType": "Out-Patient",
+                      "wardVisit": [],
+                      "report":
+                          "https://dummyimage.com/287x406.png/dddddd/000000",
+                      "consultationNote": "Luffy ryuo haki go brr",
+                    },
+                  );
+
+                  // * Write record object to the database
+                  await recordsRepo.createRecord(record: record);
+
+                  // ! Newly written record object must exist have been successfully been written to the db
+                  expect(
+                    await recordsStore
+                        .record(record.rid)
+                        .exists(recordsDatabase),
+                    true,
+                  );
+
+                  // ! Newly written patient object must have been successfully written to the db
+                  expect(
+                    await patientsStore
+                        .record(patient.pid)
+                        .exists(patientsDatabase),
+                    true,
+                  );
+
+                  // * Delete the record from the database
+                  await recordsRepo.deleteRecord(deletedRecord: record);
+
+                  // ! The record object must not exist in the db after invoking [deletePatient()] method
+                  expect(
+                    await recordsStore
+                        .record(record.rid)
+                        .exists(recordsDatabase),
+                    false,
+                  );
                 },
               );
 
-              // * Write record object to the database
-              await recordsRepo.createRecord(record: record);
+              test(
+                'When there is more than one record in the database (initialized with mock data)',
+                () async {
+                  await initializeMockData();
 
-              // ! Newly written record object must exist have been successfully been written to the db
-              expect(
-                await recordsStore.record(record.rid).exists(recordsDatabase),
-                true,
-              );
+                  // * Fetch all records from the database pre deletion
+                  Map<String, dynamic> recordsPreDelete =
+                      await getAllRecordsFromDB();
 
-              // ! Newly written patient object must have been successfully written to the db
-              expect(
-                await patientsStore
-                    .record(patient.pid)
-                    .exists(patientsDatabase),
-                true,
-              );
+                  // * Randomly select a record
+                  String randomRID = mockRecordsData.keys.elementAt(
+                    Random().nextInt(
+                      mockRecordsData.keys.length,
+                    ),
+                  );
+                  Record record = Record.mapToObject(
+                    rid: randomRID,
+                    recordMap: recordsPreDelete[randomRID],
+                  );
 
-              // * Delete the record from the database
-              await recordsRepo.deleteRecord(deletedRecord: record);
+                  // ! Randomly select record must exist in the db
+                  expect(
+                    await recordsStore
+                        .record(record.rid)
+                        .exists(recordsDatabase),
+                    true,
+                  );
 
-              // ! The record object must not exist in the db after invoking [deletePatient()] method
-              expect(
-                await recordsStore.record(record.rid).exists(recordsDatabase),
-                false,
+                  // * Delete the record from the database
+                  await recordsRepo.deleteRecord(deletedRecord: record);
+
+                  // ! The record object must not exist in the db after invoking [deletePatient()] method
+                  expect(
+                    await recordsStore
+                        .record(record.rid)
+                        .exists(recordsDatabase),
+                    false,
+                  );
+                },
               );
             },
           );
 
-          test(
-            'Test [deleteRecord()] method when there is more than one record in the database (initialized with mock data)',
-            () async {
-              await initializeMockData();
-
-              // * Fetch all records from the database pre deletion
-              Map<String, dynamic> recordsPreDelete =
-                  await getAllRecordsFromDB();
-
-              // * Randomly select a record
-              String randomRID = mockRecordsData.keys.elementAt(
-                Random().nextInt(
-                  mockRecordsData.keys.length,
-                ),
-              );
-              Record record = Record.mapToObject(
-                rid: randomRID,
-                recordMap: recordsPreDelete[randomRID],
+          group(
+            'Test [emptyRecordsDatabase()] method',
+            () {
+              setUp(
+                () async {
+                  await initializeMockData();
+                },
               );
 
-              // ! Randomly select record must exist in the db
-              expect(
-                await recordsStore.record(record.rid).exists(recordsDatabase),
-                true,
-              );
+              test(
+                'Test for a database initialized with mock data',
+                () async {
+                  // ! Before invoking [emptyRecordsDatabase()] method the records database must contain [mockRecordsData.keys.length] number of records
+                  expect(
+                    await recordsStore.count(recordsDatabase),
+                    mockRecordsData.keys.length,
+                  );
 
-              // * Delete the record from the database
-              await recordsRepo.deleteRecord(deletedRecord: record);
+                  // * Invoke [emptyPatientsDatabase()] method
+                  await recordsRepo.emptyRecordsDatabase();
 
-              // ! The record object must not exist in the db after invoking [deletePatient()] method
-              expect(
-                await recordsStore.record(record.rid).exists(recordsDatabase),
-                false,
+                  // ! After invoking [emptyRecordsDatabase()] method the records database must contain 0 records
+                  expect(
+                    await patientsStore.count(recordsDatabase),
+                    0,
+                  );
+                },
               );
             },
           );

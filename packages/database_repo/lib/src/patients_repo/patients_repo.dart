@@ -7,11 +7,19 @@ import './models/models.dart';
 /// Repository that provides operations associated with the patients collection
 class PatientsRepo {
   final StoreRef _patientsStore;
-  final Database _database;
+  final Database _patientsDatabase;
 
-  PatientsRepo({required Database database})
-      : this._database = database,
-        this._patientsStore = stringMapStoreFactory.store('patients');
+  PatientsRepo({
+    required Database patientsDatabase,
+    required StoreRef patientsStore,
+  })  : this._patientsDatabase = patientsDatabase,
+        this._patientsStore = patientsStore;
+
+  /// Getter to obtain the patient's [StoreRef] object
+  StoreRef get patientsStore => this._patientsStore;
+
+  /// Getter to obtain the patient's [Database] object
+  Database get patientsDatabase => this._patientsDatabase;
 
   // * CREATE ===========================================================================
 
@@ -22,7 +30,7 @@ class PatientsRepo {
     await this
         ._patientsStore
         .record(patient.pid)
-        .add(this._database, patient.objectToMap());
+        .add(this._patientsDatabase, patient.objectToMap());
   }
 
   // * READ =============================================================================
@@ -31,8 +39,10 @@ class PatientsRepo {
   ///
   /// Returns [null] if none found
   Future<Patient?> getPatientByPID({required String pid}) async {
-    final patientMap = await this._patientsStore.record(pid).get(this._database)
-        as Map<String, dynamic>?;
+    final patientMap = await this
+        ._patientsStore
+        .record(pid)
+        .get(this._patientsDatabase) as Map<String, dynamic>?;
 
     if (patientMap == null) return null;
 
@@ -49,7 +59,7 @@ class PatientsRepo {
     required String name,
   }) async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
-          this._database,
+          this._patientsDatabase,
           finder: Finder(
             filter: Filter.matches('name', name),
           ),
@@ -76,7 +86,7 @@ class PatientsRepo {
     required int age,
   }) async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
-          this._database,
+          this._patientsDatabase,
           finder: Finder(
             filter: Filter.equals('age', age),
           ),
@@ -103,7 +113,7 @@ class PatientsRepo {
     required Gender gender,
   }) async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
-          this._database,
+          this._patientsDatabase,
           finder: Finder(
             filter: Filter.equals('gender', gender.enumToString()),
           ),
@@ -128,7 +138,7 @@ class PatientsRepo {
   /// Returns [null] is no records exist
   Future<List<Patient>?> getAllPatients() async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
-          this._database,
+          this._patientsDatabase,
           finder: null,
         );
 
@@ -156,7 +166,7 @@ class PatientsRepo {
     await this
         ._patientsStore
         .record(updatedPatient.pid)
-        .update(this._database, updatedPatient.objectToMap());
+        .update(this._patientsDatabase, updatedPatient.objectToMap());
   }
 
   // * DELETE ===========================================================================
@@ -165,6 +175,16 @@ class PatientsRepo {
   Future<void> deletePatient({
     required Patient deletedPatient,
   }) async {
-    await this._patientsStore.record(deletedPatient.pid).delete(this._database);
+    await this
+        ._patientsStore
+        .record(deletedPatient.pid)
+        .delete(this._patientsDatabase);
+  }
+
+  /// Empties the patients database
+  ///
+  /// Use with caution! ⚠
+  Future<void> emptyPatientsDatabase() async {
+    await this._patientsStore.drop(this._patientsDatabase);
   }
 }

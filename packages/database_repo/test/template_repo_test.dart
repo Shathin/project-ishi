@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collection/collection.dart';
@@ -15,20 +14,27 @@ void main() {
   group('Testing Template Repository 🔨', () {
     late TemplateRepo templateRepo;
     late String databaseFile = 'test.db';
-    late sembast.Database database;
+    late sembast.Database templateDatabase;
     late sembast.StoreRef templateStore;
 
     // ! Setting up the objects required for each test before the start of each test
     setUp(() async {
       await sembastIO.databaseFactoryIo.deleteDatabase(databaseFile);
-      database = await sembastIO.databaseFactoryIo.openDatabase(databaseFile);
+
+      templateDatabase =
+          await sembastIO.databaseFactoryIo.openDatabase(databaseFile);
+
       templateStore = sembast.stringMapStoreFactory.store('template');
-      templateRepo = TemplateRepo(database: database);
+
+      templateRepo = TemplateRepo(
+        templateDatabase: templateDatabase,
+        templateStore: templateStore,
+      );
     });
 
     // ! Closing the database connection and deleting the database file after each test
     tearDown(() async {
-      database.close();
+      templateDatabase.close();
       await sembastIO.databaseFactoryIo.deleteDatabase(databaseFile);
     });
 
@@ -39,7 +45,7 @@ void main() {
           'Test for template collection before intialization',
           () async {
             // ! Template store must not have any records in it
-            expect(await templateStore.count(database), 0);
+            expect(await templateStore.count(templateDatabase), 0);
           },
         );
 
@@ -51,13 +57,13 @@ void main() {
 
             // ! Number of records in the template must equal to the number of entries in the [baseTemplate]
             expect(
-              await templateStore.count(database),
+              await templateStore.count(templateDatabase),
               baseTemplate.keys.length,
             );
 
             // * Fetch tempate from the database using the [database] object
             List<sembast.RecordSnapshot<dynamic, dynamic>> recordSnapshotList =
-                await templateStore.find(database);
+                await templateStore.find(templateDatabase);
             Map<String, Map<String, dynamic>> templateMap = {};
             recordSnapshotList.forEach((sembast.RecordSnapshot snapshot) {
               templateMap[snapshot.key] = snapshot.value;
@@ -107,7 +113,7 @@ void main() {
             expect(
               await templateStore
                   .record(newTemplateField.fieldKey)
-                  .exists(database),
+                  .exists(templateDatabase),
               false,
             );
 
@@ -118,7 +124,7 @@ void main() {
             expect(
               await templateStore
                   .record(newTemplateField.fieldKey)
-                  .exists(database),
+                  .exists(templateDatabase),
               true,
             );
 
@@ -126,7 +132,7 @@ void main() {
             final TemplateField storedTemplate = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record(newTemplateField.fieldKey)
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // ! The field inserted into the database must match the field created locally
@@ -155,7 +161,7 @@ void main() {
             expect(
               await templateStore
                   .record(newTemplateField.fieldKey)
-                  .exists(database),
+                  .exists(templateDatabase),
               false,
             );
 
@@ -166,7 +172,7 @@ void main() {
             expect(
               await templateStore
                   .record(newTemplateField.fieldKey)
-                  .exists(database),
+                  .exists(templateDatabase),
               true,
             );
 
@@ -174,7 +180,7 @@ void main() {
             final TemplateField storedTemplate = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record(newTemplateField.fieldKey)
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // ! The field inserted into the database must match the field created locally
@@ -229,7 +235,7 @@ void main() {
             final TemplateField deletedField = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record('patientType')
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // * Invoked the [deleteField()] method for the mandatory field "patientType"
@@ -264,7 +270,7 @@ void main() {
             final TemplateField deletedField = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record('wardVisit')
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // * Invoked the [deleteField()] method for the mandatory field "wardVisit"
@@ -1459,12 +1465,14 @@ void main() {
             final TemplateField deletedField = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record('patientType')
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // ! The database must contain the "patientType" field before delete
             expect(
-              await templateStore.record('patientType').exists(database),
+              await templateStore
+                  .record('patientType')
+                  .exists(templateDatabase),
               true,
             );
 
@@ -1473,7 +1481,9 @@ void main() {
 
             // ! The database must not contain the "patientType" field after delete
             expect(
-              await templateStore.record('patientType').exists(database),
+              await templateStore
+                  .record('patientType')
+                  .exists(templateDatabase),
               false,
             );
           },
@@ -1486,12 +1496,12 @@ void main() {
             final TemplateField deletedField = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record('wardVisit')
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // ! The database must contain the "wardVisit" field before delete
             expect(
-              await templateStore.record('wardVisit').exists(database),
+              await templateStore.record('wardVisit').exists(templateDatabase),
               true,
             );
 
@@ -1500,7 +1510,7 @@ void main() {
 
             // ! The database must not contain the "wardVisit" field
             expect(
-              await templateStore.record('wardVisit').exists(database),
+              await templateStore.record('wardVisit').exists(templateDatabase),
               false,
             );
           },
@@ -1513,7 +1523,7 @@ void main() {
             final TemplateField deletedField = TemplateField.mapToObject(
               templateFieldMap: await templateStore
                   .record('billedAmount')
-                  .get(database) as Map<String, dynamic>,
+                  .get(templateDatabase) as Map<String, dynamic>,
             );
 
             // * Invoked the [deleteField()] method for the mandatory field "billedAmount"
@@ -1521,7 +1531,9 @@ void main() {
 
             // ! The database must still contain the "billedAmount" field because a mandatory field cannot be deleted
             expect(
-              await templateStore.record('billedAmount').exists(database),
+              await templateStore
+                  .record('billedAmount')
+                  .exists(templateDatabase),
               true,
             );
           },

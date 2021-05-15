@@ -16,10 +16,17 @@ class RecordsRepo {
 
   RecordsRepo({
     required Database recordsDatabase,
+    required StoreRef recordsStore,
     required PatientsRepo patientsRepo,
   })  : this._recordsDatabase = recordsDatabase,
-        this._recordsStore = stringMapStoreFactory.store('records'),
-        _patientsRepo = patientsRepo;
+        this._recordsStore = recordsStore,
+        this._patientsRepo = patientsRepo;
+
+  /// Getter to obtain the record's [StoreRef] object
+  StoreRef get recordsStore => this._recordsStore;
+
+  /// Getter to obtain the record's [Database] object
+  Database get recordsDatabase => this._recordsDatabase;
 
   // * CREATE ===========================================================================
 
@@ -322,6 +329,13 @@ class RecordsRepo {
             updatedPatient: updatedPatient,
           );
     }
+  }
+
+  /// Empties the records database
+  ///
+  /// Use with caution! ⚠
+  Future<void> emptyRecordsDatabase() async {
+    await this._recordsStore.drop(this._recordsDatabase);
   }
 
   // * COMPUTE  ===========================================================================

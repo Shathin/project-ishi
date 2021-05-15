@@ -8,7 +8,7 @@ import "package:sembast/sembast_io.dart" as sembastIO;
 
 // ! File imports
 import "package:database_repo/patients_repo.dart";
-import 'package:database_repo/mock_data_repo.dart';
+import 'package:database_repo/utils.dart';
 import 'package:uuid/uuid.dart';
 
 void main() async {
@@ -17,29 +17,42 @@ void main() async {
     () {
       late PatientsRepo patientsRepo;
       late String databaseFile = "test.db";
-      late sembast.Database database;
+      late sembast.Database patientsDatabase;
       late sembast.StoreRef patientsStore;
       late Map<String, dynamic> mockPatientsData;
 
       // ! Setting up the objects required for each test before the start of each test
       setUp(() async {
-        await sembastIO.databaseFactoryIo.deleteDatabase(databaseFile);
-        database = await sembastIO.databaseFactoryIo.openDatabase(databaseFile);
+        patientsDatabase =
+            await sembastIO.databaseFactoryIo.openDatabase(databaseFile);
+
         patientsStore = sembast.stringMapStoreFactory.store("patients");
-        patientsRepo = PatientsRepo(database: database);
-        mockPatientsData = (await processMockData())['patients'] ?? {};
+
+        patientsRepo = PatientsRepo(
+          patientsDatabase: patientsDatabase,
+          patientsStore: patientsStore,
+        );
+
+        mockPatientsData = (await MockData.processMockData())['patients'] ?? {};
       });
 
       // ! Closing the database connection and deleting the database file after each test
       tearDown(() async {
-        database.close();
+        patientsDatabase.close();
         await sembastIO.databaseFactoryIo.deleteDatabase(databaseFile);
       });
 
       /// Initialize mock data in the database
       Future<void> initializeMockData() async {
-        for (String key in mockPatientsData.keys)
-          await patientsStore.record(key).add(database, mockPatientsData[key]);
+        bool patientsInitStatus = await MockData.initializeMockPatientsData(
+          patientsDatabase: patientsDatabase,
+          patientsStore: patientsStore,
+        );
+
+        if (!patientsInitStatus)
+          throw TestFailure(
+            'Failure while initalizing mock patients data in the database!',
+          );
       }
 
       /// A method that fetches all the patient records from the database and converts it into a map of the form {pid: patient}
@@ -97,13 +110,15 @@ void main() async {
             () async {
               // ! The locally created patient must not exist in the database before invocation of [createPatient()] method
               expect(
-                await patientsStore.record(newPatient.pid).exists(database),
+                await patientsStore
+                    .record(newPatient.pid)
+                    .exists(patientsDatabase),
                 false,
               );
 
               // ! The database must be empty before the invocation of [createPatient()] method
               expect(
-                await patientsStore.count(database),
+                await patientsStore.count(patientsDatabase),
                 0,
               );
 
@@ -112,15 +127,18 @@ void main() async {
 
               // ! The locally created patient must exist in the database after invocation of [createPatient()] method
               expect(
-                await patientsStore.record(newPatient.pid).exists(database),
+                await patientsStore
+                    .record(newPatient.pid)
+                    .exists(patientsDatabase),
                 true,
               );
 
               // ! The locally created patient must match with the patient record in the database
               expect(
                 DeepCollectionEquality.unordered().equals(
-                  await patientsStore.record(newPatient.pid).get(database)
-                      as Map<String, dynamic>,
+                  await patientsStore
+                      .record(newPatient.pid)
+                      .get(patientsDatabase) as Map<String, dynamic>,
                   newPatient.objectToMap(),
                 ),
                 true,
@@ -128,7 +146,7 @@ void main() async {
 
               // ! The database must have only 1 record after the invocation of [createPatient()] method
               expect(
-                await patientsStore.count(database),
+                await patientsStore.count(patientsDatabase),
                 1,
               );
             },
@@ -141,13 +159,15 @@ void main() async {
 
               // ! The locally created patient must not exist in the database before invocation of [createPatient()] method
               expect(
-                await patientsStore.record(newPatient.pid).exists(database),
+                await patientsStore
+                    .record(newPatient.pid)
+                    .exists(patientsDatabase),
                 false,
               );
 
               // ! The database must contain [mockPatientsData.keys.length] number of records before the invocation of [createPatient()] method
               expect(
-                await patientsStore.count(database),
+                await patientsStore.count(patientsDatabase),
                 mockPatientsData.keys.length,
               );
 
@@ -156,15 +176,18 @@ void main() async {
 
               // ! The locally created patient must exist in the database after invocation of [createPatient()] method
               expect(
-                await patientsStore.record(newPatient.pid).exists(database),
+                await patientsStore
+                    .record(newPatient.pid)
+                    .exists(patientsDatabase),
                 true,
               );
 
               // ! The locally created patient must match with the patient record in the database
               expect(
                 DeepCollectionEquality.unordered().equals(
-                  await patientsStore.record(newPatient.pid).get(database)
-                      as Map<String, dynamic>,
+                  await patientsStore
+                      .record(newPatient.pid)
+                      .get(patientsDatabase) as Map<String, dynamic>,
                   newPatient.objectToMap(),
                 ),
                 true,
@@ -172,7 +195,7 @@ void main() async {
 
               // ! The database must contain [mockPatientsData.keys.length + 1] number of records before the invocation of [createPatient()] method
               expect(
-                await patientsStore.count(database),
+                await patientsStore.count(patientsDatabase),
                 mockPatientsData.keys.length + 1,
               );
             },
@@ -1021,67 +1044,112 @@ void main() async {
       group(
         "Test DELETE 🗑",
         () {
-          test(
-            'Test [deletePatient()] method when there is only one record in the database',
-            () async {
-              // * Create a new patient object
-              final Patient patient = Patient.create(
-                name: 'Monkey D Luffy',
-                gender: Gender.PreferNotToSay,
+          group(
+            'Test [deletePatient()] method',
+            () {
+              test(
+                'When only one record exists in the database',
+                () async {
+                  // * Create a new patient object
+                  final Patient patient = Patient.create(
+                    name: 'Monkey D Luffy',
+                    gender: Gender.PreferNotToSay,
+                  );
+                  // * Write patient object to database
+                  await patientsRepo.createPatient(patient: patient);
+
+                  // ! Newly written patient object must have been successfully written to the db
+                  expect(
+                    await patientsStore
+                        .record(patient.pid)
+                        .exists(patientsDatabase),
+                    true,
+                  );
+
+                  // * Delete the patient record from the database
+                  await patientsRepo.deletePatient(deletedPatient: patient);
+
+                  // ! The patient record [patient] must not exist in the db after invoking [deletePatient()] method
+                  expect(
+                    await patientsStore
+                        .record(patient.pid)
+                        .exists(patientsDatabase),
+                    false,
+                  );
+                },
               );
-              // * Write patient object to database
-              await patientsRepo.createPatient(patient: patient);
 
-              // ! Newly written patient object must have been successfully written to the db
-              expect(
-                await patientsStore.record(patient.pid).exists(database),
-                true,
-              );
+              test(
+                'When more than one record exists in the database (initialized with mock data)',
+                () async {
+                  await initializeMockData();
 
-              // * Delete the patient record from the database
-              await patientsRepo.deletePatient(deletedPatient: patient);
+                  // * Fetch all patient records from the database
+                  Map<String, dynamic> allPatientRecordsPreUpdate =
+                      await getAllPatientsFromDB();
 
-              // ! The patient record [patient] must not exist in the db after invoking [deletePatient()] method
-              expect(
-                await patientsStore.record(patient.pid).exists(database),
-                false,
+                  // * Randomly select a patient record
+                  String randomPID = mockPatientsData.keys.elementAt(
+                    Random().nextInt(
+                      mockPatientsData.keys.length,
+                    ),
+                  );
+                  final Patient randomPatient = Patient.mapToObject(
+                    recordId: randomPID,
+                    patientMap: allPatientRecordsPreUpdate[randomPID],
+                  );
+
+                  // ! Randomly selected patient must exist in the db
+                  expect(
+                    await patientsStore
+                        .record(randomPatient.pid)
+                        .exists(patientsDatabase),
+                    true,
+                  );
+
+                  // * Delete the patient record from the database
+                  await patientsRepo.deletePatient(
+                      deletedPatient: randomPatient);
+
+                  // ! The patient record [patient] must not exist in the db after invoking [deletePatient()] method
+                  expect(
+                    await patientsStore
+                        .record(randomPatient.pid)
+                        .exists(patientsDatabase),
+                    false,
+                  );
+                },
               );
             },
           );
 
-          test(
-            'Test [deletePatient()] method when there is more than one record in the database (initialized with mock data)',
-            () async {
-              await initializeMockData();
-
-              // * Fetch all patient records from the database
-              Map<String, dynamic> allPatientRecordsPreUpdate =
-                  await getAllPatientsFromDB();
-
-              // * Randomly select a patient record
-              String randomPID = mockPatientsData.keys.elementAt(
-                Random().nextInt(
-                  mockPatientsData.keys.length,
-                ),
-              );
-              final Patient randomPatient = Patient.mapToObject(
-                recordId: randomPID,
-                patientMap: allPatientRecordsPreUpdate[randomPID],
+          group(
+            'Test [emptyPatientsDatabase()] method',
+            () {
+              setUp(
+                () async {
+                  await initializeMockData();
+                },
               );
 
-              // ! Randomly selected patient must exist in the db
-              expect(
-                await patientsStore.record(randomPatient.pid).exists(database),
-                true,
-              );
+              test(
+                'Test for a database initialized with mock data',
+                () async {
+                  // ! Before invoking [emptyPatientsDatabase()] method the patients database must contain [mockPatientsData.keys.length] number of records
+                  expect(
+                    await patientsStore.count(patientsDatabase),
+                    mockPatientsData.keys.length,
+                  );
 
-              // * Delete the patient record from the database
-              await patientsRepo.deletePatient(deletedPatient: randomPatient);
+                  // * Invoke [emptyPatientsDatabase()] method
+                  await patientsRepo.emptyPatientsDatabase();
 
-              // ! The patient record [patient] must not exist in the db after invoking [deletePatient()] method
-              expect(
-                await patientsStore.record(randomPatient.pid).exists(database),
-                false,
+                  // ! After invoking [emptyPatientsDatabase()] method the patients database must contain 0 records
+                  expect(
+                    await patientsStore.count(patientsDatabase),
+                    0,
+                  );
+                },
               );
             },
           );
