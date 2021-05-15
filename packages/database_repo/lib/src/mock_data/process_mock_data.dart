@@ -8,7 +8,7 @@ import 'mock_data.dart';
 /// Returns a map of the format {'patients': mockPatientData, 'records': mockRecordsData}
 ///
 /// Set [writeToFile] argument if you wish to store the results of this method into two files -> patients.txt and records.txt
-Future<Map> processMockData({
+Future<Map<String, Map<String, dynamic>>> processMockData({
   bool writeToFile = false,
 }) async {
   Map<String, dynamic> patients = {};
@@ -29,11 +29,23 @@ Future<Map> processMockData({
       record["patientType"] = recordItem["patientType"];
       record["procedureName"] = recordItem["procedureName"];
       record["procedureCode"] = recordItem["procedureCode"];
-      record["dateOfProcedure"] = recordItem["dateOfProcedure"];
+
+      // * This extra step is done in order to sanitize the date
+      record["dateOfProcedure"] = DateTime.parse(
+        recordItem["dateOfProcedure"],
+      ).toIso8601String();
+
       record["billedAmount"] = recordItem["billedAmount"];
       record["paidAmount"] = recordItem["paidAmount"];
-      record["feeWaived"] = recordItem["feeWaived"];
-      record["wardVisit"] = recordItem["wardVisit"];
+      record["feeWaived?"] = recordItem["feeWaived?"];
+
+      // * This extra step is done in order to sanitize the date
+      record["wardVisit"] = (recordItem["wardVisit"] as List<dynamic>)
+          .map(
+            (item) => DateTime.parse(item).toIso8601String(),
+          )
+          .toList();
+
       record["report"] = recordItem["report"];
       record["consultationNote"] = recordItem["consultationNote"];
       records[recordItem["recordId"]] = record;

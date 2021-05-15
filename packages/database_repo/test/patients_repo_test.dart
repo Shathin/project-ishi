@@ -19,7 +19,7 @@ void main() async {
       late String databaseFile = "test.db";
       late sembast.Database database;
       late sembast.StoreRef patientsStore;
-      late Map<String, dynamic> mockPatientData;
+      late Map<String, dynamic> mockPatientsData;
 
       // ! Setting up the objects required for each test before the start of each test
       setUp(() async {
@@ -27,7 +27,7 @@ void main() async {
         database = await sembastIO.databaseFactoryIo.openDatabase(databaseFile);
         patientsStore = sembast.stringMapStoreFactory.store("patients");
         patientsRepo = PatientsRepo(database: database);
-        mockPatientData = (await processMockData())['patients'];
+        mockPatientsData = (await processMockData())['patients'] ?? {};
       });
 
       // ! Closing the database connection and deleting the database file after each test
@@ -38,8 +38,8 @@ void main() async {
 
       /// Initialize mock data in the database
       Future<void> initializeMockData() async {
-        for (String key in mockPatientData.keys)
-          await patientsStore.record(key).add(database, mockPatientData[key]);
+        for (String key in mockPatientsData.keys)
+          await patientsStore.record(key).add(database, mockPatientsData[key]);
       }
 
       /// A method that fetches all the patient records from the database and converts it into a map of the form {pid: patient}
@@ -50,7 +50,7 @@ void main() async {
 
         if (allPatientsFromDB == null)
           throw TestFailure(
-            'Test failed because fetching all patient records from the database after update has failed',
+            'Test failed while fetching all patient records from the database',
           );
 
         final Map<String, dynamic> allPatientsFromDBMap = {};
@@ -72,8 +72,9 @@ void main() async {
 
         if (patientFromDB == null)
           throw TestFailure(
-            'Test failed because no patient with PID $pid was found after update',
+            'Test failed because no patient with PID $pid was found',
           );
+
         return patientFromDB.objectToMap();
       }
 
@@ -138,21 +139,16 @@ void main() async {
             () async {
               await initializeMockData();
 
-              for (String key in mockPatientData.keys)
-                await patientsStore
-                    .record(key)
-                    .add(database, mockPatientData[key]);
-
               // ! The locally created patient must not exist in the database before invocation of [createPatient()] method
               expect(
                 await patientsStore.record(newPatient.pid).exists(database),
                 false,
               );
 
-              // ! The database must contain [mockPatientData.keys.length] number of records before the invocation of [createPatient()] method
+              // ! The database must contain [mockPatientsData.keys.length] number of records before the invocation of [createPatient()] method
               expect(
                 await patientsStore.count(database),
-                mockPatientData.keys.length,
+                mockPatientsData.keys.length,
               );
 
               // * Invoke the [createPatient()] method
@@ -174,10 +170,10 @@ void main() async {
                 true,
               );
 
-              // ! The database must contain [mockPatientData.keys.length + 1] number of records before the invocation of [createPatient()] method
+              // ! The database must contain [mockPatientsData.keys.length + 1] number of records before the invocation of [createPatient()] method
               expect(
                 await patientsStore.count(database),
-                mockPatientData.keys.length + 1,
+                mockPatientsData.keys.length + 1,
               );
             },
           );
@@ -197,11 +193,11 @@ void main() async {
               test(
                 "Test for a pid that exists in the database",
                 () async {
-                  // * Fetch a random PID from the [mockData] map
-                  String randomPID = mockPatientData.keys
-                      .elementAt(Random().nextInt(mockPatientData.keys.length));
+                  // * Fetch a random PID from the [mockPatientsData] map
+                  String randomPID = mockPatientsData.keys.elementAt(
+                      Random().nextInt(mockPatientsData.keys.length));
                   Map<String, dynamic> randomPatientMap =
-                      mockPatientData[randomPID];
+                      mockPatientsData[randomPID];
 
                   // * Invoke the [getPatientByPID()] method to search for the [randomPID]
                   Patient? patient =
@@ -209,13 +205,15 @@ void main() async {
 
                   if (patient == null)
                     throw TestFailure(
-                      'Test failed because no patients with PID $randomPID was found',
+                      'Test failed because no patient with PID $randomPID was found',
                     );
 
-                  // ! The patient fetched from the database must match the patient chosen from the [mockPatientMap]
+                  // ! The patient fetched from the database must match the patient chosen from the [mockPatientsData] map
                   expect(
-                    DeepCollectionEquality.unordered()
-                        .equals(patient.objectToMap(), randomPatientMap),
+                    DeepCollectionEquality.unordered().equals(
+                      patient.objectToMap(),
+                      randomPatientMap,
+                    ),
                     true,
                   );
                 },
@@ -224,12 +222,13 @@ void main() async {
               test(
                 "Test for a pid that doesn't exist in the database",
                 () async {
-                  // * A random name that doesn't exist in the database
+                  // * A random pid that doesn't exist in the database
                   String randomPID = Uuid().v1();
 
                   // * Invoke the [getPatientByPID()] method to search for the [randomPID]
-                  Patient? patient =
-                      await patientsRepo.getPatientByPID(pid: randomPID);
+                  Patient? patient = await patientsRepo.getPatientByPID(
+                    pid: randomPID,
+                  );
 
                   // ! No patient must be found
                   expect(
@@ -253,14 +252,14 @@ void main() async {
                 () async {
                   // * Fetch a random name from the [mockData] map
                   int randomPatientIndex =
-                      Random().nextInt(mockPatientData.keys.length);
-                  String randomPatientName = mockPatientData[
-                          mockPatientData.keys.elementAt(randomPatientIndex)]
+                      Random().nextInt(mockPatientsData.keys.length);
+                  String randomPatientName = mockPatientsData[
+                          mockPatientsData.keys.elementAt(randomPatientIndex)]
                       ['name'];
 
-                  // * Check count of the exisitence of [randomAge] in the [mockPatientData]
+                  // * Check count of the exisitence of [randomAge] in the [mockPatientsData]
                   int count = 0;
-                  mockPatientData.forEach((key, value) {
+                  mockPatientsData.forEach((key, value) {
                     if ((value["name"] as String).contains(randomPatientName))
                       count++;
                   });
@@ -274,14 +273,7 @@ void main() async {
                       'Test failed because no patients by the name $randomPatientName were found',
                     );
 
-                  // ! The length of the [patients] list must be at least 1
-                  // ? (at least 1 ) because there can be multiple patients with the same name
-                  expect(
-                    patients.length >= 1,
-                    true,
-                  );
-
-                  // ! The count of the number of patients obtained as a result of the [getPatientByName()] method invocation must be the same as the count that was locally computed on the [mockPatientData]
+                  // ! The count of the number of patients obtained as a result of the [getPatientByName()] method invocation must be the same as the count that was locally computed on the [mockPatientsData]
                   expect(
                     patients.length,
                     count,
@@ -328,9 +320,9 @@ void main() async {
                 () async {
                   int randomAge = 21;
 
-                  // * Check count of the exisitence of [randomAge] in the [mockPatientData]
+                  // * Check count of the exisitence of [randomAge] in the [mockPatientsData]
                   int count = 0;
-                  mockPatientData.forEach((key, value) {
+                  mockPatientsData.forEach((key, value) {
                     if (value["age"] != null && value["age"] == 21) count++;
                   });
 
@@ -350,7 +342,7 @@ void main() async {
                     true,
                   );
 
-                  // ! The count of the number of patients obtained as a result of the [getPatientByAge()] method invocation must be the same as the count that was locally computed on the [mockPatientData]
+                  // ! The count of the number of patients obtained as a result of the [getPatientByAge()] method invocation must be the same as the count that was locally computed on the [mockPatientsData]
                   expect(
                     patients.length,
                     count,
@@ -397,9 +389,9 @@ void main() async {
                 () async {
                   Gender randomGender = Gender.Male;
 
-                  // * Check count of the exisitence of [randomGender] in the [mockPatientData]
+                  // * Check count of the exisitence of [randomGender] in the [mockPatientsData]
                   int count = 0;
-                  mockPatientData.forEach((key, value) {
+                  mockPatientsData.forEach((key, value) {
                     if (value["gender"] == Gender.Male.enumToString()) count++;
                   });
 
@@ -419,7 +411,7 @@ void main() async {
                     true,
                   );
 
-                  // ! The count of the number of patients obtained as a result of the [getPatientByGender()] method invocation must be the same as the count that was locally computed on the [mockPatientData]
+                  // ! The count of the number of patients obtained as a result of the [getPatientByGender()] method invocation must be the same as the count that was locally computed on the [mockPatientsData]
                   expect(
                     patients.length,
                     count,
@@ -462,7 +454,7 @@ void main() async {
                 () async {
                   List<Patient>? patients = await patientsRepo.getAllPatients();
 
-                  // ! Since the database is empty, no data must exist and hence [getAllPatients] must return null
+                  // ! Since the database is empty, no data must exist and hence [getAllPatients()] must return null
                   expect(patients, isNull);
                 },
               );
@@ -479,17 +471,21 @@ void main() async {
                       '[getAllPatients()] returned null for a database that is supposed to have records in it',
                     );
 
-                  // ! The database must contain [mockPatientData.keys.length] number of records since the [mockPatientData] was used to initalize it
-                  expect(patients.length, mockPatientData.keys.length);
+                  // ! The database must contain [mockPatientsData.keys.length] number of records since the [mockPatientsData] was used to initalize it
+                  expect(patients.length, mockPatientsData.keys.length);
 
-                  // ! The content from the database must match the [mockPatientData]
-                  patients.forEach((patient) {
-                    expect(
-                      DeepCollectionEquality.unordered().equals(
-                          patient.objectToMap(), mockPatientData[patient.pid]),
-                      true,
-                    );
-                  });
+                  // ! The content from the database must match the [mockPatientsData]
+                  patients.forEach(
+                    (patient) {
+                      expect(
+                        DeepCollectionEquality.unordered().equals(
+                          patient.objectToMap(),
+                          mockPatientsData[patient.pid],
+                        ),
+                        true,
+                      );
+                    },
+                  );
                 },
               );
             },
@@ -711,8 +707,8 @@ void main() async {
                   await initializeMockData();
 
                   // * Fetch a random PID from the [mockData] map
-                  String randomPID = mockPatientData.keys
-                      .elementAt(Random().nextInt(mockPatientData.keys.length));
+                  String randomPID = mockPatientsData.keys.elementAt(
+                      Random().nextInt(mockPatientsData.keys.length));
 
                   // * Invoke the [getPatientByPID()] method to search for the [randomPID]
                   Patient? patientFromDB =
@@ -1063,9 +1059,9 @@ void main() async {
                   await getAllPatientsFromDB();
 
               // * Randomly select a patient record
-              String randomPID = mockPatientData.keys.elementAt(
+              String randomPID = mockPatientsData.keys.elementAt(
                 Random().nextInt(
-                  mockPatientData.keys.length,
+                  mockPatientsData.keys.length,
                 ),
               );
               final Patient randomPatient = Patient.mapToObject(

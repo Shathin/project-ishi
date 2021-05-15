@@ -27,7 +27,7 @@ class PatientsRepo {
 
   // * READ =============================================================================
 
-  /// Fetches a list of patients by patient id
+  /// Fetches a patient by patient id
   ///
   /// Returns [null] if none found
   Future<Patient?> getPatientByPID({required String pid}) async {
@@ -129,6 +129,7 @@ class PatientsRepo {
   Future<List<Patient>?> getAllPatients() async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
           this._database,
+          finder: null,
         );
 
     if (recordSnapshotList.isEmpty) return null;
