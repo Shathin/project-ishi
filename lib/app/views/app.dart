@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+
+// ! Third part libraries
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+// ! File imports
 import 'package:project_ishi/app/app.dart';
 import 'package:project_ishi/dashboard/dashboard.dart';
 import 'package:project_ishi/generate_summary/generate_summary.dart';
 import 'package:project_ishi/manage_record/manage_record.dart';
 import 'package:project_ishi/manage_template/manage_template.dart';
+import 'package:project_ishi/settings/settings.dart';
 import 'package:project_ishi/utils/navbar/navbar.dart';
 import 'package:project_ishi/view_all_patients/views/view_all_patients_page.dart';
 import 'package:project_ishi/view_all_records/view_all_records.dart';
@@ -44,6 +49,8 @@ class AppPage extends StatelessWidget {
                           return ManageTemplatePage();
                         case Screen.summary:
                           return GenerateSummaryPage();
+                        case Screen.settings:
+                          return SettingsPage();
                         default:
                           return DashboardPage();
                       }

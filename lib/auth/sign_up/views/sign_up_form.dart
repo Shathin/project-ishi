@@ -1,3 +1,4 @@
+import 'package:database_repo/template_repo.dart';
 import 'package:flutter/material.dart';
 
 // ! Third party libraries
@@ -140,8 +141,9 @@ class _RegisterPasswordButton extends StatelessWidget {
         //     : null,
         onPressed: context.read<SignUpCubit>().isFormInvalid
             ? null
-            : () {
+            : () async {
                 context.read<SignUpCubit>().registerPassword();
+                await context.read<TemplateRepo>().initializeTemplate();
                 Navigator.of(context).pushReplacement(LoginPage.route());
               },
       ),
