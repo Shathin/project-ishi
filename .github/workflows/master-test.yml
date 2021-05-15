@@ -19,4 +19,7 @@ jobs:
         run: flutter pub get
       
       - name: Unit Test Package `auth_repo`
-        run: flutter test ./packages/auth_repo/test/
+        run: flutter test --concurrency=1 ./packages/auth_repo/
+
+      - name: Unit Test Package `database_repo`
+        run: flutter test --concurrency=1 ./packages/database_repo/
