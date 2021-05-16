@@ -87,18 +87,14 @@ class SettingsPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Flexible(
-                  flex: 2,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Settings',
-                      style: Theme.of(context).textTheme.headline2,
-                    ),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Settings',
+                    style: Theme.of(context).textTheme.headline2,
                   ),
                 ),
-                Flexible(
-                  flex: 8,
+                Expanded(
                   child: Align(
                     alignment: Alignment.center,
                     child: Wrap(

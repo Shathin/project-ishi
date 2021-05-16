@@ -71,4 +71,10 @@ Following is the list of packages that is used in the application.
   - **Package**: `uuid: ^3.0.4`
   - **Null Safety**: ✅
   - **URL**: https://pub.dev/packages/uuid
+### FL Charts
+  - **Description**: A powerful Flutter chart library, currently supporting Line Chart, Bar Chart and Pie Chart.
+  - **Support**: Android, iOS, MacOS, Web, Linux, **Windows**
+  - **Package**: `fl_chart: ^0.36.1`
+  - **Null Safety**: ✅
+  - **URL**: https://pub.dev/packages/fl_chart
 

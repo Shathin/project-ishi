@@ -44,7 +44,7 @@ class Navbar extends StatelessWidget {
               children: <Widget>[
                 NavbarButton(
                   tooltip: 'Dashboard',
-                  icon: FontAwesomeIcons.home,
+                  icon: FontAwesomeIcons.chartPie,
                   isSelected: state.screen == Screen.dashboard ? true : false,
                   onPressed: () =>
                       context.read<NavigationCubit>().navigateToDashboard(),
@@ -64,13 +64,6 @@ class Navbar extends StatelessWidget {
                   onPressed: () => context
                       .read<NavigationCubit>()
                       .navigateToViewAllPatients(),
-                ),
-                NavbarButton(
-                  tooltip: 'Add Record',
-                  icon: FontAwesomeIcons.plus,
-                  isSelected: state.screen == Screen.addRecord ? true : false,
-                  onPressed: () =>
-                      context.read<NavigationCubit>().navigateToAddRecord(),
                 ),
                 NavbarButton(
                   tooltip: 'Generate Summary',
