@@ -11,6 +11,13 @@ Following is the list of packages that is used in the application.
   - **Package**: `sembast: ^3.0.2`
   - **Null Safety**: ✅
   - **URL**: https://pub.dev/packages/sembast
+### Sembast DB Web
+  - **Description**: NoSQL persistent embedded file system document-based database for Dart VM and Flutter with encryption support.
+  - **Support**: Android, iOS, MacOS, Web, Linux, **Windows**
+  - **Package**: `sembast_web: ^2.0.0+2`
+  - **Null Safety**: ✅
+  - **URL**: https://pub.dev/packages/sembast_web
+
 
 ### Shared Preferences
   - **Description**: Flutter plugin for reading and writing simple key-value pairs.

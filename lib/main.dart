@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 // ! Third Party libraries
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
+import 'package:sembast_web/sembast_web.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ! Custom libraries
@@ -29,8 +31,9 @@ Future<void> main() async {
 
   // ! Initializing the template repository object
   final String templateDbFile = 'template.db';
-  final Database templateDatabase =
-      await databaseFactoryIo.openDatabase(templateDbFile);
+  final Database templateDatabase = foundation.kIsWeb
+      ? await databaseFactoryWeb.openDatabase(templateDbFile)
+      : await databaseFactoryIo.openDatabase(templateDbFile);
   final StoreRef templateStore = stringMapStoreFactory.store('template');
   final TemplateRepo templateRepo = TemplateRepo(
     templateDatabase: templateDatabase,
@@ -39,8 +42,9 @@ Future<void> main() async {
 
   // ! Initializing the patients repository object
   final String patientsDbFile = 'patients.db';
-  final Database patientsDatabase =
-      await databaseFactoryIo.openDatabase(patientsDbFile);
+  final Database patientsDatabase = foundation.kIsWeb
+      ? await databaseFactoryWeb.openDatabase(patientsDbFile)
+      : await databaseFactoryIo.openDatabase(patientsDbFile);
   final StoreRef patientsStore = stringMapStoreFactory.store('patients');
   final PatientsRepo patientsRepo = PatientsRepo(
     patientsDatabase: patientsDatabase,
@@ -49,8 +53,9 @@ Future<void> main() async {
 
   // ! Initializing the records repository object
   final String recordsDbFile = 'records.db';
-  final Database recordsDatabase =
-      await databaseFactoryIo.openDatabase(recordsDbFile);
+  final Database recordsDatabase = foundation.kIsWeb
+      ? await databaseFactoryWeb.openDatabase(recordsDbFile)
+      : await databaseFactoryIo.openDatabase(recordsDbFile);
   final StoreRef recordsStore = stringMapStoreFactory.store('records');
   final RecordsRepo recordsRepo = RecordsRepo(
     recordsDatabase: recordsDatabase,
