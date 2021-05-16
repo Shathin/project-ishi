@@ -55,7 +55,7 @@ class PatientsRepo {
   /// Fetches a list of patients by name
   ///
   /// Returns [null] if none found
-  Future<List<Patient>?> getPatientByName({
+  Future<List<Patient>?> getPatientsByName({
     required String name,
   }) async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
@@ -82,7 +82,7 @@ class PatientsRepo {
   /// Fetches a list of patients by age
   ///
   /// Returns [null] if none found
-  Future<List<Patient>?> getPatientByAge({
+  Future<List<Patient>?> getPatientsByAge({
     required int age,
   }) async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(
@@ -109,7 +109,7 @@ class PatientsRepo {
   /// Fetches a list of patients by gender
   ///
   /// Returns [null] if none found
-  Future<List<Patient>?> getPatientByGender({
+  Future<List<Patient>?> getPatientsByGender({
     required Gender gender,
   }) async {
     List<RecordSnapshot> recordSnapshotList = await this._patientsStore.find(

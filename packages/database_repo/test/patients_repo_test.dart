@@ -288,8 +288,8 @@ void main() async {
                   });
 
                   // * Invoke the [getPatientByName()] method to search for the [randomPatientName]
-                  List<Patient>? patients = await patientsRepo.getPatientByName(
-                      name: randomPatientName);
+                  List<Patient>? patients = await patientsRepo
+                      .getPatientsByName(name: randomPatientName);
 
                   if (patients == null)
                     throw TestFailure(
@@ -319,8 +319,8 @@ void main() async {
                   String randomPatientName = "Monkey D Luffy";
 
                   // * Invoke the [getPatientByName()] method to search for the [randomPatientName]
-                  List<Patient>? patients = await patientsRepo.getPatientByName(
-                      name: randomPatientName);
+                  List<Patient>? patients = await patientsRepo
+                      .getPatientsByName(name: randomPatientName);
 
                   // ! No patient must be found
                   expect(
@@ -351,7 +351,7 @@ void main() async {
 
                   // * Invoke the [getPatientByAge()] method to search for the [randomAge]
                   List<Patient>? patients =
-                      await patientsRepo.getPatientByAge(age: randomAge);
+                      await patientsRepo.getPatientsByAge(age: randomAge);
 
                   if (patients == null)
                     throw TestFailure(
@@ -389,7 +389,7 @@ void main() async {
 
                   // * Invoke the [getPatientByAge()] method to search for the [randomAge]
                   List<Patient>? patients =
-                      await patientsRepo.getPatientByAge(age: randomAge);
+                      await patientsRepo.getPatientsByAge(age: randomAge);
 
                   // ! No patient must be found
                   expect(
@@ -420,7 +420,7 @@ void main() async {
 
                   // * Invoke the [getPatientByGender()] method to search for the [randomAge]
                   List<Patient>? patients = await patientsRepo
-                      .getPatientByGender(gender: randomGender);
+                      .getPatientsByGender(gender: randomGender);
 
                   if (patients == null)
                     throw TestFailure(
@@ -458,7 +458,7 @@ void main() async {
 
                   // * Invoke the [getPatientByAge()] method to search for the [randomAge]
                   List<Patient>? patients = await patientsRepo
-                      .getPatientByGender(gender: randomGender);
+                      .getPatientsByGender(gender: randomGender);
 
                   // ! No patient must be found
                   expect(
