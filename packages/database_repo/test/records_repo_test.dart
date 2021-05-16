@@ -1335,24 +1335,23 @@ void main() {
                 () async {
                   await initializeMockData();
 
-                  double totalAmount = 0;
                   double totalBilledAmount = 0;
                   double totalPaidAmount = 0;
+                  double totalUnpaidAmount = 0;
 
                   mockRecordsData.forEach((key, record) {
                     totalBilledAmount += record["billedAmount"];
                     totalPaidAmount += record["paidAmount"];
                   });
 
-                  totalAmount = totalBilledAmount + totalPaidAmount;
+                  totalUnpaidAmount = totalBilledAmount - totalPaidAmount;
 
                   Map<String, dynamic> result = {
                     "totalBilled": totalBilledAmount,
                     "totalPaid": totalPaidAmount,
-                    "total": totalAmount,
-                    "percentageBilled": totalBilledAmount / totalAmount,
-                    "percentagePaid": totalPaidAmount / totalAmount,
-                    "difference": totalBilledAmount - totalPaidAmount,
+                    "totalUnpaidAmount": totalUnpaidAmount,
+                    "percentageUnpaid": totalUnpaidAmount / totalBilledAmount,
+                    "percentagePaid": totalPaidAmount / totalBilledAmount,
                   };
 
                   Map<String, double>? percentAmount =

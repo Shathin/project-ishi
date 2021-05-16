@@ -343,9 +343,9 @@ class RecordsRepo {
   /// Computes the percentage  of the three fee waived choices i.e., "Yes", "No" and "Partially", that exists in all the records
   ///
   /// Format : {
-  ///   "Yes" : 10,
-  ///   "No" : 79,
-  ///   "Partially": 11,
+  ///   "Yes" : .10,
+  ///   "No" : .79,
+  ///   "Partially": .11,
   ///   "total" : 100
   /// }
   ///
@@ -411,10 +411,9 @@ class RecordsRepo {
   /// Format : {
   ///   "totalBilled" : number,
   ///   "totalPaid" : number,
-  ///   "total": number,
-  ///   "percentageBilled": number
+  ///   "totalUnpaidAmount": number,
+  ///   "percentageUnpaid": number
   ///   "percentagePaid": number
-  ///   "difference" : number,
   /// }
   ///
   /// Optionally the [start] and [end] date range can be provided
@@ -452,24 +451,23 @@ class RecordsRepo {
 
     if (recordList == null) return null;
 
-    double totalAmount = 0;
     double totalBilledAmount = 0;
     double totalPaidAmount = 0;
+    double totalUnpaidAmount = 0;
 
     recordList.forEach((record) {
       totalBilledAmount += record.billedAmount;
       totalPaidAmount += record.paidAmount;
     });
 
-    totalAmount = totalBilledAmount + totalPaidAmount;
+    totalUnpaidAmount = totalBilledAmount - totalPaidAmount;
 
     return {
       "totalBilled": totalBilledAmount,
       "totalPaid": totalPaidAmount,
-      "total": totalAmount,
-      "percentageBilled": totalBilledAmount / totalAmount,
-      "percentagePaid": totalPaidAmount / totalAmount,
-      "difference": totalBilledAmount - totalPaidAmount,
+      "totalUnpaidAmount": totalUnpaidAmount,
+      "percentageUnpaid": totalUnpaidAmount / totalBilledAmount,
+      "percentagePaid": totalPaidAmount / totalBilledAmount,
     };
   }
 }
