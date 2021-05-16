@@ -48,12 +48,6 @@ class ViewAllPatientsPage extends StatelessWidget {
                                       [],
                                 ),
                               ),
-                    // : Center(
-                    //     child: Text(
-                    //       'View All Patients\nFound ${state.patients?.length} patients',
-                    //       style: Theme.of(context).textTheme.headline1,
-                    //     ),
-                    //   ),
                   )
                 ],
               ),

@@ -97,7 +97,7 @@ class RecordsRepo {
             sortOrders: sortByDateOfProcedure
                 ? <SortOrder>[
                     // TODO : Make sure this way of sorting dates works
-                    SortOrder('dateOfProcedure'),
+                    SortOrder('dateOfProcedure', false),
                   ]
                 : null,
             filter: Filter.matches('pid', pid),
@@ -134,7 +134,7 @@ class RecordsRepo {
             sortOrders: sortByDateOfProcedure
                 ? <SortOrder>[
                     // TODO : Make sure this way of sorting dates works
-                    SortOrder('dateOfProcedure'),
+                    SortOrder('dateOfProcedure', false),
                   ]
                 : null,
             filter: Filter.custom((record) {
@@ -168,7 +168,7 @@ class RecordsRepo {
   /// Fetches a list of records whose field identified by [fieldKey] argument has the value [fieldValue]
   ///
   /// - For the field types [TemplateFieldType.String], [TemplateFieldType.LargeText] and [TemplateFieldType.Media] this method performs a 'contains' type search
-  /// - For the field types [TemplateFieldType.Number] and [TemplateFieldType.Money] this method performs a 'greater than or equals to' type search
+  /// - For the field types [TemplateFieldType.Number] and [TemplateFieldType.Money] this method performs a 'greater than or equals to' type search. NOTE: Pass the numbers as a string, the method will internally parse it to a double
   /// - For the field type [TemplateFieldType.Choice] this method performs a 'equals' type search
   /// - For the field type [TemplateFieldType.Array] and this method performs a 'inList?' type search
   /// - For the field type [TemplateFieldType.Timestamp] this method invokes the [getRecordsBetweenDate] by passing the [start] as the the input date with the time being the start of the day and the [end] as the input date with the time being the end of day
@@ -192,7 +192,7 @@ class RecordsRepo {
         break;
       case TemplateFieldType.Number:
       case TemplateFieldType.Money:
-        filter = Filter.greaterThanOrEquals(fieldKey, fieldValue);
+        filter = Filter.greaterThanOrEquals(fieldKey, double.parse(fieldValue));
         break;
       case TemplateFieldType.Choice:
         filter = Filter.equals(fieldKey, fieldValue);
@@ -231,7 +231,7 @@ class RecordsRepo {
             sortOrders: sortByDateOfProcedure
                 ? <SortOrder>[
                     // TODO : Make sure this way of sorting dates works
-                    SortOrder('dateOfProcedure'),
+                    SortOrder('dateOfProcedure', false),
                   ]
                 : null,
             filter: filter,
@@ -266,7 +266,7 @@ class RecordsRepo {
             sortOrders: sortByDateOfProcedure
                 ? <SortOrder>[
                     // TODO : Make sure this way of sorting dates works
-                    SortOrder('dateOfProcedure'),
+                    SortOrder('dateOfProcedure', false),
                   ]
                 : null,
           ),

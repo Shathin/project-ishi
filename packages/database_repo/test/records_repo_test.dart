@@ -587,7 +587,7 @@ void main() {
                           await recordsRepo.getRecordsByFieldKeyValue(
                         fieldType: TemplateFieldType.Money,
                         fieldKey: "billedAmount",
-                        fieldValue: billedAmount,
+                        fieldValue: billedAmount.toString(),
                       );
 
                       if (records == null)
@@ -622,7 +622,7 @@ void main() {
                           await recordsRepo.getRecordsByFieldKeyValue(
                         fieldType: TemplateFieldType.Money,
                         fieldKey: "billedAmount",
-                        fieldValue: billedAmount,
+                        fieldValue: billedAmount.toString(),
                       );
 
                       // ! No records must be found
