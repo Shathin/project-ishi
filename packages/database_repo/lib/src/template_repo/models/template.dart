@@ -48,6 +48,16 @@ class Template {
     );
   }
 
+  /// Method that returns a copy of the current [Template] object with a specified fields replaced by the arguments passed to this method
+  Template copyWith({
+    List<TemplateField>? patientDetails,
+    List<TemplateField>? procedureDetails,
+  }) =>
+      Template._(
+        patientDetails: patientDetails ?? this.patientDetails,
+        procedureDetails: procedureDetails ?? this.procedureDetails,
+      );
+
   @override
   String toString() =>
       'Patient Details -> ${this.patientDetails}\nProcedure Details -> ${this.procedureDetails}';
