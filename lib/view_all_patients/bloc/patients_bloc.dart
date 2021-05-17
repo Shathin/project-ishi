@@ -19,6 +19,10 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
       yield* _mapLoadPatientsByAgeEventToState(event);
     } else if (event is LoadPatientsByGenderEvent) {
       yield* _mapLoadPatientsByGenderEventToState(event);
+    } else if (event is CreateNewPatientEvent) {
+      yield* _mapCreateNewPatientEventToState(event);
+    } else if (event is UpdatePatientEvent) {
+      yield* _mapUpdatePatientEventToState(event);
     } else if (event is PatientsLoadedEvent) {
       yield PatientsLoadedState(patients: event.patients);
     }
@@ -65,5 +69,28 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
     );
 
     add(PatientsLoadedEvent(patients: patients));
+  }
+
+  Stream<PatientsState> _mapCreateNewPatientEventToState(
+      CreateNewPatientEvent event) async* {
+    yield LoadingPatientsState();
+
+    await patientsRepo.createPatient(
+      patient: event.patient,
+    );
+
+    add(LoadAllPatientsEvent());
+  }
+
+  Stream<PatientsState> _mapUpdatePatientEventToState(
+      UpdatePatientEvent event) async* {
+    yield LoadingPatientsState();
+
+    await patientsRepo.updatePatient(
+      oldPatient: event.oldPatient,
+      updatedPatient: event.updatedPatient,
+    );
+
+    add(LoadAllPatientsEvent());
   }
 }

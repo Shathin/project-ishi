@@ -2,6 +2,8 @@ import 'package:database_repo/patients_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'add_patient_dialog.dart';
+
 class PatientCard extends StatelessWidget {
   final Patient patient;
 
@@ -12,7 +14,10 @@ class PatientCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.all(16.0),
       child: InkWell(
-        onTap: () {}, // TODO : Implement on tap
+        onTap: () {
+          print("CARD PRESSED!");
+        }, // TODO : Implement on tap
+
         child: Container(
           padding: EdgeInsets.all(8.0),
           width: 400.0,
@@ -72,9 +77,18 @@ class PatientCard extends StatelessWidget {
                         Text(
                             'Record count: ${patient.recordReferences.length}'),
                         SizedBox(height: 16.0),
-                        FaIcon(
-                          FontAwesomeIcons.chevronRight,
-                          size: 14.0,
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AddPatientDialog(
+                                blocContext: context,
+                                patient: patient,
+                              ),
+                            );
+                          },
+                          icon: FaIcon(FontAwesomeIcons.edit),
+                          tooltip: 'Edit',
                         ),
                       ],
                     ),

@@ -1,9 +1,11 @@
 import 'package:database_repo/patients_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_ishi/view_all_patients/views/patient_card.dart';
 import 'package:project_ishi/view_all_patients/views/search_bar.dart';
 import '../bloc/patients_bloc.dart';
+import 'add_patient_dialog.dart';
 
 class ViewAllPatientsPage extends StatelessWidget {
   static Route route() =>
@@ -15,10 +17,28 @@ class ViewAllPatientsPage extends StatelessWidget {
       create: (_) => PatientsBloc(
         patientsRepo: context.read<PatientsRepo>(),
       )..add(LoadAllPatientsEvent()),
-      child: Scaffold(
-        body: BlocBuilder<PatientsBloc, PatientsState>(
-          builder: (context, state) {
-            return Container(
+      child: BlocBuilder<PatientsBloc, PatientsState>(
+        builder: (context, state) {
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: state is LoadingPatientsState
+                  ? null
+                  : () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AddPatientDialog(
+                          blocContext: context,
+                        ),
+                      );
+                    },
+              mouseCursor: state is LoadingPatientsState
+                  ? SystemMouseCursors.forbidden
+                  : SystemMouseCursors.click,
+              child: FaIcon(FontAwesomeIcons.plus),
+              tooltip: 'Add new patient',
+              isExtended: true,
+            ),
+            body: Container(
               height: double.infinity,
               width: double.infinity,
               child: Column(
@@ -51,9 +71,9 @@ class ViewAllPatientsPage extends StatelessWidget {
                   )
                 ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

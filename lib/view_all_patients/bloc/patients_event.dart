@@ -32,3 +32,21 @@ class PatientsLoadedEvent extends PatientsEvent {
 
   PatientsLoadedEvent({required this.patients});
 }
+
+/// Represents the event of creating a new patient object and storing it in the database
+class CreateNewPatientEvent extends PatientsEvent {
+  Patient patient;
+
+  CreateNewPatientEvent({required this.patient});
+}
+
+/// Represents the event of updating a object and storing it in the database
+class UpdatePatientEvent extends PatientsEvent {
+  Patient oldPatient;
+  Patient updatedPatient;
+
+  UpdatePatientEvent({
+    required this.oldPatient,
+    required this.updatedPatient,
+  });
+}
