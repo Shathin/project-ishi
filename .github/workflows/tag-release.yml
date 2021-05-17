@@ -5,6 +5,41 @@ on:
       - "*"
 
 jobs:
+  build-release-web-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+
+      - name: Enable flutter web
+        run: flutter config --enable-web
+
+      - name: Build web release for Containerization
+        run: flutter build web
+
+      - name: Publish Docker Image to GPR
+        uses: machine-learning-apps/gpr-docker-publish@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          IMAGE_NAME: 'project-ishi'
+          DOCKERFILE_PATH: 'Dockerfile'
+          BUILD_CONTEXT: './'
+      
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: gh-pages
+          build_dir: build/web
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-release-windows:
     runs-on: windows-latest
 
@@ -16,18 +51,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - name: Setup environment for Flutter (Beta)
         uses: subosito/flutter-action@v1
         with:
           channel: beta
-      
+
       - name: Enable Windows support for Flutter
         run: flutter config --enable-windows-desktop
-      
+
       - name: Get all packages
         run: flutter pub get
-      
+
       - name: Build release application for Windows
         run: flutter build windows
 
@@ -41,7 +76,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name:  ${{ github.ref }}
+          release_name: ${{ github.ref }}
           draft: false
           prerelease: false
 
