@@ -1,3 +1,3 @@
 library utils;
 
-export 'src/utils/mock_data/mock_data.dart';
+export 'src/utils/utils.dart';

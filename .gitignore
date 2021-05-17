@@ -45,5 +45,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Database files 
+# Database files & Misc files
 *.db
+*.xlsx
