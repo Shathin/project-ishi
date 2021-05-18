@@ -21,6 +21,7 @@ class ViewAllPatientsPage extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             floatingActionButton: FloatingActionButton(
+              heroTag: 'view_all_patients',
               onPressed: state is LoadingPatientsState
                   ? null
                   : () {

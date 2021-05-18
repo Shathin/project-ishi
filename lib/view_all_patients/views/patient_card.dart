@@ -1,6 +1,7 @@
 import 'package:database_repo/patients_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_ishi/manage_patient/views/manage_patient_view.dart';
 
 import 'add_patient_dialog.dart';
 
@@ -15,9 +16,34 @@ class PatientCard extends StatelessWidget {
       margin: EdgeInsets.all(16.0),
       child: InkWell(
         onTap: () {
-          print("CARD PRESSED!");
-        }, // TODO : Implement on tap
-
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              reverseTransitionDuration: Duration(milliseconds: 250),
+              transitionDuration: Duration(milliseconds: 250),
+              barrierDismissible: true,
+              pageBuilder: (BuildContext buildContext, _, __) =>
+                  ManagePatientView(
+                pid: patient.pid,
+                parentBlocContext: context,
+              ),
+              transitionsBuilder:
+                  (___, Animation<double> animation, ____, Widget child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: FadeTransition(
+                    opacity:
+                        Tween<double>(begin: 0.0, end: 1.0).animate(animation),
+                    // turns:
+                    //     Tween<double>(begin: 0.5, end: 1.0).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+            ),
+          );
+        },
         child: Container(
           padding: EdgeInsets.all(8.0),
           width: 400.0,
@@ -75,8 +101,9 @@ class PatientCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                            'Record count: ${patient.recordReferences.length}'),
-                        SizedBox(height: 16.0),
+                          'Record count: ${patient.recordReferences.length}',
+                        ),
+                        // SizedBox(height: 16.0),
                         IconButton(
                           onPressed: () {
                             showDialog(
@@ -89,6 +116,7 @@ class PatientCard extends StatelessWidget {
                           },
                           icon: FaIcon(FontAwesomeIcons.edit),
                           tooltip: 'Edit',
+                          iconSize: 16.0,
                         ),
                       ],
                     ),

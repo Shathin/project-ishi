@@ -6,6 +6,11 @@ class Template {
   final List<TemplateField> patientDetails;
   final List<TemplateField> procedureDetails;
 
+  /// Use this constructor for null safety related issues
+  Template.empty()
+      : patientDetails = [],
+        procedureDetails = [];
+
   Template._({required this.patientDetails, required this.procedureDetails});
 
   /// Method to convert the [Template] object into a Map

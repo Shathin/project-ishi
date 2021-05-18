@@ -44,8 +44,6 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
       name: event.searchString,
     );
 
-    print(patients?.length);
-
     add(PatientsLoadedEvent(patients: patients));
   }
 
