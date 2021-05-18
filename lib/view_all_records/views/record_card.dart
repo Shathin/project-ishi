@@ -1,6 +1,7 @@
 import 'package:database_repo/records_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:project_ishi/manage_record/manage_record.dart';
 
 class RecordCard extends StatelessWidget {
   final Record record;
@@ -11,7 +12,36 @@ class RecordCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.all(16.0),
       child: InkWell(
-        onTap: () {}, // TODO : Implement on tap
+        onTap: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              opaque: false,
+              reverseTransitionDuration: Duration(milliseconds: 250),
+              transitionDuration: Duration(milliseconds: 250),
+              barrierDismissible: true,
+              pageBuilder: (BuildContext buildContext, _, __) =>
+                  ManageRecordView(
+                pid: record.pid,
+                rid: record.rid,
+                parentBlocContext: context,
+              ),
+              transitionsBuilder:
+                  (___, Animation<double> animation, ____, Widget child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: FadeTransition(
+                    opacity:
+                        Tween<double>(begin: 0.0, end: 1.0).animate(animation),
+                    // turns:
+                    //     Tween<double>(begin: 0.5, end: 1.0).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+            ),
+          );
+        },
         child: Container(
           padding: EdgeInsets.all(8.0),
           width: 512.0,

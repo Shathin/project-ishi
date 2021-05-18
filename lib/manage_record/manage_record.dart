@@ -1,1 +1,1 @@
-export 'views/manage_record_page.dart';
+export 'views/manage_record_view.dart';
