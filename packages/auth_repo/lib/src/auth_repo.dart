@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:logging_repo/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart';
 
@@ -24,14 +25,20 @@ class AuthRepo {
   /// Setter to set the [password] preference to the [password] argument.
   /// The password will be stored as a SHA512 hash of the user's password
   set password(String password) => this
-      .sharedPreferences
-      .setString('password', sha512.convert(utf8.encode(password)).toString())
-      .then((value) => _isFirstTime = false);
+          .sharedPreferences
+          .setString(
+              'password', sha512.convert(utf8.encode(password)).toString())
+          .then((value) {
+        _isFirstTime = false;
+        LoggingService.loggingService.log('setPassword');
+      });
 
   /// A method to determine if the password entered by the user matches the password stored in the preference
   bool isPasswordMatch(String password) {
     String hashedPassword = sha512.convert(utf8.encode(password)).toString();
     String storedPassword = this.sharedPreferences.getString('password') ?? '';
+
+    LoggingService.loggingService.log('isPasswordMatch');
 
     return hashedPassword.compareTo(storedPassword) == 0 ? true : false;
   }

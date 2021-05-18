@@ -1,4 +1,5 @@
 // ! Third party libraries
+import 'package:logging_repo/logging.dart';
 import 'package:sembast/sembast.dart';
 
 // ! Models
@@ -31,6 +32,8 @@ class PatientsRepo {
         ._patientsStore
         .record(patient.pid)
         .add(this._patientsDatabase, patient.objectToMap());
+
+    LoggingService.loggingService.log('createPatient');
   }
 
   // * READ =============================================================================
@@ -45,6 +48,8 @@ class PatientsRepo {
         .get(this._patientsDatabase) as Map<String, dynamic>?;
 
     if (patientMap == null) return null;
+
+    LoggingService.loggingService.log('getPatientByPID');
 
     return Patient.mapToObject(
       recordId: pid,
@@ -64,6 +69,8 @@ class PatientsRepo {
             filter: Filter.matches('name', name),
           ),
         );
+
+    LoggingService.loggingService.log('getPatientsByName');
 
     if (recordSnapshotList.isEmpty) return null;
 
@@ -92,6 +99,8 @@ class PatientsRepo {
           ),
         );
 
+    LoggingService.loggingService.log('getPatientsByAge');
+
     if (recordSnapshotList.isEmpty) return null;
 
     List<Patient> patientList = <Patient>[];
@@ -119,6 +128,8 @@ class PatientsRepo {
           ),
         );
 
+    LoggingService.loggingService.log('getPatientsByGender');
+
     if (recordSnapshotList.isEmpty) return null;
 
     List<Patient> patientList = <Patient>[];
@@ -141,6 +152,8 @@ class PatientsRepo {
           this._patientsDatabase,
           finder: null,
         );
+
+    LoggingService.loggingService.log('getAllPatients');
 
     if (recordSnapshotList.isEmpty) return null;
 
@@ -167,6 +180,8 @@ class PatientsRepo {
         ._patientsStore
         .record(updatedPatient.pid)
         .update(this._patientsDatabase, updatedPatient.objectToMap());
+
+    LoggingService.loggingService.log('updatePatient');
   }
 
   // * DELETE ===========================================================================
@@ -179,6 +194,8 @@ class PatientsRepo {
         ._patientsStore
         .record(deletedPatient.pid)
         .delete(this._patientsDatabase);
+
+    LoggingService.loggingService.log('deletePatient');
   }
 
   /// Empties the patients database

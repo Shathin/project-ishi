@@ -1,5 +1,6 @@
 // ! Third party libraries
 import 'package:database_repo/patients_repo.dart';
+import 'package:logging_repo/logging.dart';
 import 'package:sembast/sembast.dart';
 
 // ! Models
@@ -59,6 +60,8 @@ class RecordsRepo {
         ._recordsStore
         .record(record.rid)
         .add(this._recordsDatabase, record.objectToMap());
+
+    LoggingService.loggingService.log('createRecord');
   }
 
   // * READ =============================================================================
@@ -75,6 +78,8 @@ class RecordsRepo {
         .get(this._recordsDatabase) as Map<String, dynamic>?;
 
     if (recordMap == null) return null;
+
+    LoggingService.loggingService.log('readRecordByRID');
 
     return Record.mapToObject(
       rid: rid,
@@ -115,6 +120,8 @@ class RecordsRepo {
       ));
     });
 
+    LoggingService.loggingService.log('getRecordsByPID');
+
     return recordList;
   }
 
@@ -150,6 +157,8 @@ class RecordsRepo {
             }),
           ),
         );
+
+    LoggingService.loggingService.log('getRecordsBetweenDate');
 
     if (recordSnapshotList.isEmpty) return null;
 
@@ -238,6 +247,8 @@ class RecordsRepo {
           ),
         );
 
+    LoggingService.loggingService.log('getRecordsByFieldKeyValue');
+
     if (recordSnapshotList.isEmpty) return null;
 
     List<Record> recordList = <Record>[];
@@ -272,6 +283,8 @@ class RecordsRepo {
           ),
         );
 
+    LoggingService.loggingService.log('getAllRecords');
+
     if (recordSnapshotList.isEmpty) return null;
 
     List<Record> recordList = <Record>[];
@@ -297,6 +310,8 @@ class RecordsRepo {
         ._recordsStore
         .record(oldRecord.rid)
         .update(this._recordsDatabase, updatedRecord.objectToMap());
+
+    LoggingService.loggingService.log('updateRecord');
   }
 
   // * DELETE ===========================================================================
@@ -313,6 +328,8 @@ class RecordsRepo {
     // * Get current patient object from the database
     Patient? patient =
         await this._patientsRepo.getPatientByPID(pid: deletedRecord.pid);
+
+    LoggingService.loggingService.log('deletedRecord');
 
     // * Don't bother with updating a patient object if it doesn't exist
     if (patient != null) {
@@ -335,6 +352,8 @@ class RecordsRepo {
   ///
   /// Use with caution! ⚠
   Future<void> emptyRecordsDatabase() async {
+    LoggingService.loggingService.log('emptyRecordsDatabase');
+
     await this._recordsStore.drop(this._recordsDatabase);
   }
 
@@ -397,6 +416,8 @@ class RecordsRepo {
       else
         partiallyCount++;
     });
+
+    LoggingService.loggingService.log('computePercentFeeWaived');
 
     return {
       "Yes": yesCount / recordCount,
@@ -461,6 +482,8 @@ class RecordsRepo {
     });
 
     totalUnpaidAmount = totalBilledAmount - totalPaidAmount;
+
+    LoggingService.loggingService.log('computeAmountTotal');
 
     return {
       "totalBilled": totalBilledAmount,

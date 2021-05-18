@@ -1,6 +1,8 @@
 import 'dart:async';
 
 // ! Models
+import 'package:logging_repo/logging.dart';
+
 import './models/models.dart';
 
 // ! Third party libraris
@@ -33,6 +35,8 @@ class TemplateRepo {
         ._templateStore
         .record(newField.fieldKey)
         .add(this._templateDatabase, newField.objectToMap());
+
+    LoggingService.loggingService.log('createNewField');
   }
 
   // * READ =============================================================================
@@ -49,6 +53,8 @@ class TemplateRepo {
       templateMap[snapshot.key] = snapshot.value;
     });
 
+    LoggingService.loggingService.log('readTemplate');
+
     return Template.mapToObject(templateMap: templateMap);
   }
 
@@ -62,6 +68,9 @@ class TemplateRepo {
     final field =
         await this._templateStore.record(fieldKey).get(this._templateDatabase);
     if (field == null) return null;
+
+    LoggingService.loggingService.log('readField');
+
     return TemplateField.mapToObject(
         templateFieldMap: field as Map<String, dynamic>);
   }
@@ -115,6 +124,9 @@ class TemplateRepo {
             this._templateDatabase,
             updatedField.copyWith(sequence: lastSequence + 1).objectToMap(),
           );
+
+      LoggingService.loggingService.log('updateField');
+
       return true;
     }
 
@@ -123,6 +135,8 @@ class TemplateRepo {
           this._templateDatabase,
           updatedField.objectToMap(),
         );
+
+    LoggingService.loggingService.log('updateField');
 
     return true;
   }
@@ -206,6 +220,8 @@ class TemplateRepo {
         oldField: oldField,
         updatedField: updatedField,
       );
+
+      LoggingService.loggingService.log('reorderField');
     }
   }
 
@@ -229,6 +245,8 @@ class TemplateRepo {
           ._templateStore
           .record(deletedField.fieldKey)
           .delete(this._templateDatabase);
+
+    LoggingService.loggingService.log('deleteField');
   }
 
   // * INIT ===========================================================================
@@ -250,5 +268,7 @@ class TemplateRepo {
           .record(fieldKey)
           .add(this._templateDatabase, baseTemplateMap[fieldKey]);
     }
+
+    LoggingService.loggingService.log('initializeTemplate');
   }
 }
