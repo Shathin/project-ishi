@@ -4,7 +4,6 @@ part of 'navigation_cubit.dart';
 enum Screen {
   dashboard,
   allRecords,
-  addRecord,
   manageTemplate,
   allPatients,
   summary,
@@ -19,7 +18,6 @@ class NavigationState {
   NavigationState dashboard() => NavigationState(screen: Screen.dashboard);
   NavigationState viewAllRecords() =>
       NavigationState(screen: Screen.allRecords);
-  NavigationState addRecord() => NavigationState(screen: Screen.addRecord);
   NavigationState manageTemplate() =>
       NavigationState(screen: Screen.manageTemplate);
   NavigationState viewAllPatients() =>

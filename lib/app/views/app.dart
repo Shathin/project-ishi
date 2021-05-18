@@ -41,8 +41,6 @@ class AppPage extends StatelessWidget {
                           return DashboardPage();
                         case Screen.allRecords:
                           return ViewAllRecordsPage();
-                        case Screen.addRecord:
-                          return ManageRecordPage();
                         case Screen.allPatients:
                           return ViewAllPatientsPage();
                         case Screen.manageTemplate:
